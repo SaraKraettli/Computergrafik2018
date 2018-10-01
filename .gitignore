@@ -1,0 +1,5 @@
+assignment_*/build
+
+assignment_*/cmake-build-debug
+
+assignment_*/.idea
