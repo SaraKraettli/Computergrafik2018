@@ -1,6 +1,0 @@
-E:/Computergrafik/assignment_0_build/CMakeFiles/INSTALL.dir
-E:/Computergrafik/assignment_0_build/CMakeFiles/ALL_BUILD.dir
-E:/Computergrafik/assignment_0_build/CMakeFiles/ZERO_CHECK.dir
-E:/Computergrafik/assignment_0_build/src/CMakeFiles/raytrace.dir
-E:/Computergrafik/assignment_0_build/src/CMakeFiles/debug_aabb.dir
-E:/Computergrafik/assignment_0_build/src/CMakeFiles/INSTALL.dir

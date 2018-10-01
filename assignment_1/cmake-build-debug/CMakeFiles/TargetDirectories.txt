@@ -1,0 +1,6 @@
+/cygdrive/e/Computergrafik/Computergrafik2018/assignment_1/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/cygdrive/e/Computergrafik/Computergrafik2018/assignment_1/cmake-build-debug/CMakeFiles/edit_cache.dir
+/cygdrive/e/Computergrafik/Computergrafik2018/assignment_1/cmake-build-debug/src/CMakeFiles/rebuild_cache.dir
+/cygdrive/e/Computergrafik/Computergrafik2018/assignment_1/cmake-build-debug/src/CMakeFiles/raytrace.dir
+/cygdrive/e/Computergrafik/Computergrafik2018/assignment_1/cmake-build-debug/src/CMakeFiles/edit_cache.dir
+/cygdrive/e/Computergrafik/Computergrafik2018/assignment_1/cmake-build-debug/src/CMakeFiles/debug_aabb.dir
