@@ -36,14 +36,23 @@ intersect(const Ray& _ray,
           double&    _intersection_t ) const
 {
 
-/** \todo
+    /** \todo
  * - compute the intersection of the plane with `_ray`
  * - if ray and plane are parallel there is no intersection
  * - otherwise compute intersection data and store it in `_intersection_point`, `_intersection_normal`, and `_intersection_t`.
  * - return whether there is an intersection in front of the viewer (t > 0)
 */
 
-    return false;
+    double dividor = dot(this->normal, _ray.direction);
+    if (dividor == 0) {
+        return false;
+    }
+
+    _intersection_t = (dot(this->normal, operator-(this->center, _ray.origin))) / dividor;
+    _intersection_normal = this->normal;
+    _intersection_point = _ray(_intersection_t);
+
+    return true;
 }
 
 
