@@ -44,6 +44,7 @@ intersect(const Ray& _ray,
 */
 
     double dividor = dot(this->normal, _ray.direction);
+
     if (dividor == 0) {
         return false;
     }
@@ -52,7 +53,13 @@ intersect(const Ray& _ray,
     _intersection_normal = this->normal;
     _intersection_point = _ray(_intersection_t);
 
-    return true;
+    double a = dot(_ray.direction, _intersection_normal) / (norm(_ray.direction) * norm(_intersection_normal));
+
+    if (a > 0) {
+        _intersection_normal = operator-(_intersection_normal);//(_intersection_point - center) / radius;  // TODO: Falsche normale, es sollte der Abstand zur center-linie, nicht zum center-punkt berechnen
+    }
+
+    return _intersection_t > 0 ? true : false;
 }
 
 
