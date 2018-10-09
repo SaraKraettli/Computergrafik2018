@@ -149,14 +149,28 @@ vec3 Scene::lighting(const vec3& _point, const vec3& _normal, const vec3& _view,
     vec3 diffuse = vec3(0, 0, 0);
     vec3 specular = vec3(0, 0, 0);
 
-    // Adding diffuse and specular contribution for each light
+    // Adding diffuse and specular contribution for each light, if not in shadow
+	Object_ptr  object;
+	vec3        point;
+	vec3        normal;
+	double      t;
+
+	// compute shadowray, using 0.01 offset to avoid shadow acne
+	Ray shadowray;
+	shadowray.origin = _point + 0.01 * _normal;
+
     for(Light source : lights) {
-        vec3 _light = normalize(source.position - _point);
-        vec3 _reflection = mirror(_light, _normal);
+		shadowray.direction = normalize(source.position - _point);
+		// add up diffuse & specular if not in shadow
+		if (!intersect(shadowray, object, point, normal, t)) { 
+			vec3 _light = normalize(source.position - _point);
 
-        diffuse += source.color * _material.diffuse * fmax(dot(_normal, _light), 0);
+			vec3 _reflection = mirror(_light, _normal);
 
-        specular += source.color * _material.specular * pow((fmax(dot(_view, _reflection), 0)), (_material.shininess));
+			diffuse += source.color * _material.diffuse * fmax(dot(_normal, _light), 0);
+
+			specular += source.color * _material.specular * pow((fmax(dot(_view, _reflection), 0)), (_material.shininess));
+		}
     }
 
     color += diffuse + specular;
