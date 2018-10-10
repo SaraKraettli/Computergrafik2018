@@ -167,9 +167,9 @@ vec3 Scene::lighting(const vec3& _point, const vec3& _normal, const vec3& _view,
 
 			vec3 _reflection = mirror(_light, _normal);
 
-			diffuse += source.color * _material.diffuse * fmax(dot(_normal, _light), 0);
+			diffuse += source.color * _material.diffuse * std::max(dot(_normal, _light), 0.0);
 
-			specular += source.color * _material.specular * pow((fmax(dot(_view, _reflection), 0)), (_material.shininess));
+			specular += source.color * _material.specular * pow((std::max(dot(_view, _reflection), 0.0)), (_material.shininess));
 		}
     }
 
