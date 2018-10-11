@@ -2,7 +2,7 @@ Exercise2-GroupSED
 
 How we solved the exercise:
 
-We first implemented the amient, specular and diffuse contribution.
+We first implemented the ambient, specular and diffuse contribution.
 For this, we set the default-color to the ambient color, and then add up diffuse and specular light.
 
 After this, we implemented shadows.
