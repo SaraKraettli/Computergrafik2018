@@ -1,35 +1,27 @@
-Exercise1-GroupSED
+Exercise2-GroupSED
 
 How we solved the exercise:
 
-We first implemented the ray-plane-intersection.
-For this, we changed the class "Plane.cpp".
-To test if the implementation works, we executed raytrace.exe with the cylinder-scene as input.
-The output should be an image with a green background
+We first implemented the amient, specular and diffuse contribution.
+For this, we set the default-color to the ambient color, and then add up diffuse and specular light.
 
-Then we made the ray-cylinder intersection and normal derivations, because this is
-needed for the remaining part of the exercise.
+After this, we implemented shadows.
+For the shadows, we created a shadowray and set the center of the shadowray.
+Then, for each light, we change the direction of the shadowray and check if
+it intersects with the point.
+If not, we change the diffuse and specular contribution.
 
-After this, we implemented the ray-cylinder intersection.
-For this, we needed to change the file "Cylinder.cpp".
-
-
-
+At the end, we implemented the reflections.
+For this, we first check if the depth is smaller than max_depth and if the
+objects material has the ability to mirror rays.
+If so, we create a reflectedRay and set it's direction and origin.
+After this, we invoke the method trace recursively with the reflectedRay and with depth+1
+This gives us the reflectedColor, with which we partially change the default phong lighting color,
+depending on the materials mirror attribute.
 
 Encountered Problems:
 
- - How to test if ray-plane-intersection works
-
- - bug: only half cylinder was visible
-   fix: do not return if the nearer intersection_t is too height,
-        but test the second intersection_t if it's valid
-
- - bug: Colors inside the cylinder were wrong
-   fix: Calculate other _intersection_normal if the point is inside the cylinder
-        (if intersection-point is inside cylinder, the ray has to reflect to the center-line, unlike if the
-        intersection-point is outside the cylinder (then is has to go away from the center-line))
-
-
+ - We had no problems, everthing went fine
 
 Fraction of the total workload:
 
