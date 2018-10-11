@@ -109,12 +109,17 @@ vec3 Scene::trace(const Ray& _ray, int _depth)
 		if (object->material.mirror > 0) {
 
 		    // Calculate the reflected ray
+		    // direction is the current ray reflected at the objects surface
+		    // origin is the current point + a little of the objects normal, to be sure not to be inside the object
 			Ray reflectedRay;
 			reflectedRay.direction = reflect(_ray.direction, normal);
 			reflectedRay.origin = point + 0.01 * normal;
 
             // Calculate the reflected color. For this, we recursively invoke 'trace(_ray, _depth)'
 			vec3 reflectedColor = trace(reflectedRay, _depth + 1);
+
+			// Change the Phong lighting color by replacing a bit of the color with the reflected color
+			// The amount of change is given by the double 'alpha'.
 			double alpha = object->material.mirror;
 			color = (1 - alpha) * color + alpha * reflectedColor;
 		}
