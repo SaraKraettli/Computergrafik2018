@@ -190,11 +190,15 @@ vec3 Scene::lighting(const vec3& _point, const vec3& _normal, const vec3& _view,
 	// Add up diffuse & specular for each light
     for(Light source : lights) {
         // Set shadowray-direction, which is the vector from the point to the light
-		shadowray.direction = normalize(source.position - _point);
+        vec3 vecPointToSource = source.position - _point;
+		shadowray.direction = normalize(vecPointToSource);
 
 		// Don't change diffuse & specular if an object is between the point and the light
 		// For this, we can use the shadowray
-		if (!intersect(shadowray, object, point, normal, t)) {
+		bool intersectExisting = intersect(shadowray, object, point, normal, t);
+
+		// If there is no intersect or if the intersect is behind the source light, add up diffuse and specular
+		if (!intersectExisting || (t > norm(vecPointToSource))) {
 			vec3 _light = normalize(source.position - _point);
 
 			vec3 _reflection = mirror(_light, _normal);
