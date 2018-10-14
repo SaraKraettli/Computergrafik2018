@@ -26,12 +26,6 @@
 #include <tbb/parallel_for.h>
 #endif
 
-// To prevent spurious intersections caused by numerical issues, we need to
-// offset the shadow and reflected ray emission points from the surface
-// intersection.
-constexpr double shadow_ray_offset = 1e-5;
-constexpr double reflection_ray_offset = 1e-5;
-
 //-----------------------------------------------------------------------------
 
 Image Scene::render()
@@ -99,10 +93,38 @@ vec3 Scene::trace(const Ray& _ray, int _depth)
     // compute local Phong lighting (ambient+diffuse+specular)
     vec3 color = lighting(point, normal, -_ray.direction, object->material);
 
+    /** \todo
+     * Compute reflections by recursive ray tracing:
+     * - check whether `object` is reflective by checking its `material.mirror`
+     * - check recursion depth
+     * - generate reflected ray, compute its color contribution, and mix it with
+     * the color computed by local Phong lighting (use `object->material.mirror` as weight)
+     * - check whether your recursive algorithm reflects the ray `max_depth` times
+     */
 
-    // \todo Paste your assignment 2 solution here.
+    // Check if the maximal recursion depth is reached. If yes, return
+	if (_depth < max_depth) {
 
-    return color;
+	    // Check if the material mirrors rays. If not, return
+		if (object->material.mirror > 0) {
+
+		    // Calculate the reflected ray
+		    // direction is the current ray reflected at the objects surface
+		    // origin is the current point + a little of the objects normal, to be sure not to be inside the object
+			Ray reflectedRay;
+			reflectedRay.direction = reflect(_ray.direction, normal);
+			reflectedRay.origin = point + 0.01 * normal;
+
+            // Calculate the reflected color. For this, we recursively invoke 'trace(_ray, _depth)'
+			vec3 reflectedColor = trace(reflectedRay, _depth + 1);
+
+			// Change the Phong lighting color by replacing a bit of the color with the reflected color
+			// The amount of change is given by the double 'alpha'.
+			double alpha = object->material.mirror;
+			color = (1 - alpha) * color + alpha * reflectedColor;
+		}
+	}
+	return color;
 }
 
 //-----------------------------------------------------------------------------
@@ -133,8 +155,62 @@ bool Scene::intersect(const Ray& _ray, Object_ptr& _object, vec3& _point, vec3& 
 vec3 Scene::lighting(const vec3& _point, const vec3& _normal, const vec3& _view, const Material& _material)
 {
 
-    // \todo Paste your assignment 2 solution here.
-    vec3 color = (_normal + vec3(1)) / 2.0;
+    /** \todo
+     * Compute the Phong lighting:
+     * - start with global ambient contribution
+     * - for each light source (stored in vector `lights`) add diffuse and specular contribution
+     * - only add diffuse and specular light if object is not in shadow
+     *
+     * You can look at the classes `Light` and `Material` to check their attributes. Feel free to use
+     * the existing vector functions in vec3.h e.g. mirror, reflect, norm, dot, normalize
+     */
+    // visualize the normal as a RGB color for now.
+    // vec3 color = (_normal + vec3(1)) / 2.0;
+
+
+    // Computing global ambient contribution
+    vec3 color = ambience * _material.ambient;
+
+    // Define diffuse and specular vectors, which we change for each light and add up to color at the end
+    vec3 diffuse = vec3(0, 0, 0);
+    vec3 specular = vec3(0, 0, 0);
+
+    // Declare some variables for the intersect-method
+	Object_ptr  object;
+	vec3        point;
+	vec3        normal;
+	double      t;
+
+	// Compute shadowray
+    // origin is the point on the object + a little bit of the normal-vector to be sure not to be inside
+    // the object (avoid shadow acne)
+	Ray shadowray;
+	shadowray.origin = _point + 0.01 * _normal;
+
+	// Add up diffuse & specular for each light
+    for(Light source : lights) {
+        // Set shadowray-direction, which is the vector from the point to the light
+        vec3 vecPointToSource = source.position - _point;
+		shadowray.direction = normalize(vecPointToSource);
+
+		// Don't change diffuse & specular if an object is between the point and the light
+		// For this, we can use the shadowray
+		bool intersectExisting = intersect(shadowray, object, point, normal, t);
+
+		// If there is no intersect or if the intersect is behind the source light, add up diffuse and specular
+		if (!intersectExisting || (t > norm(vecPointToSource))) {
+			vec3 _light = normalize(source.position - _point);
+
+			vec3 _reflection = mirror(_light, _normal);
+
+			diffuse += source.color * _material.diffuse * std::max(dot(_normal, _light), 0.0);
+
+			specular += source.color * _material.specular * pow((std::max(dot(_view, _reflection), 0.0)), (_material.shininess));
+		}
+    }
+
+    // Add the final diffuse and specular to the color
+    color += diffuse + specular;
 
     return color;
 }
