@@ -11,6 +11,7 @@
 //== INCLUDES =================================================================
 
 #include "Mesh.h"
+#include "Plane.h"
 #include <fstream>
 #include <string>
 #include <stdexcept>
@@ -173,9 +174,30 @@ void Mesh::compute_bounding_box()
 //-----------------------------------------------------------------------------
 
 
+bool intersectPlane2Vectors(const Ray& _ray, const vec3& _center, const vec3& _vec1, const vec3& _vec2,
+                             const vec3& _eCheck1, const double& _bbCheck1min, const double& _bbCheck1max,
+                             const vec3& _eCheck2, const double& _bbCheck2min, const double& _bbCheck2max) {
+    vec3 _intersection_point;
+    vec3 _intersection_normal;
+    double _intersection_t;
+
+    vec3 e1 = vec3(1, 0, 0);
+    vec3 e2 = vec3(0, 1, 0);
+    vec3 e3 = vec3(0, 0, 1);
+
+    Plane planeMinXY_XZ = Plane(_center, cross(operator-(_vec1, _center), operator-(_vec1, _vec2)));
+    if (planeMinXY_XZ.intersect(_ray, _intersection_point, _intersection_normal, _intersection_t)) {
+        if ((dot(_intersection_point, _eCheck1) <= std::fmax(_bbCheck1min, _bbCheck1max)) && (dot(_intersection_point, _eCheck1) >= std::fmin(_bbCheck1min, _bbCheck1max))) {
+            if ((dot(_intersection_point, _eCheck2) <= std::fmax(_bbCheck2min, _bbCheck2max)) && (dot(_intersection_point, _eCheck2) >= std::fmin(_bbCheck2min, _bbCheck2max))) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 bool Mesh::intersect_bounding_box(const Ray& _ray) const
 {
-
     /** \todo
     * Intersect the ray `_ray` with the axis-aligned bounding box of the mesh.
     * Note that the minimum and maximum point of the bounding box are stored
@@ -185,9 +207,60 @@ bool Mesh::intersect_bounding_box(const Ray& _ray) const
     * with all triangles of every mesh in the scene. The bounding boxes are computed
     * in `Mesh::compute_bounding_box()`.
     */
+    vec3 e1 = vec3(1, 0, 0);
+    vec3 e2 = vec3(0, 1, 0);
+    vec3 e3 = vec3(0, 0, 1);
 
-    return true;
+    double bbminX = dot(this->bb_min_, e1);
+    double bbminY = dot(this->bb_min_, e2);
+    double bbminZ = dot(this->bb_min_, e3);
+
+    double bbmaxX = dot(this->bb_max_, e1);
+    double bbmaxY = dot(this->bb_max_, e2);
+    double bbmaxZ = dot(this->bb_max_, e3);
+
+    // first vector: x and y of bbmin, z of bbmax
+    vec3 bbminxy = vec3(bbminX, bbminY, bbmaxZ);
+    vec3 bbminxz = vec3(bbminX, bbmaxY, bbminZ);
+    vec3 bbminyz = vec3(bbmaxX, bbminY, bbminZ);
+
+    // first vector: x and y of bbmax, z of bbmin
+    vec3 bbmaxxy = vec3(bbmaxX, bbmaxY, bbminZ);
+    vec3 bbmaxxz = vec3(bbmaxX, bbminY, bbmaxZ);
+    vec3 bbmaxyz = vec3(bbminX, bbmaxY, bbmaxZ);
+
+
+    vec3 _intersection_point = vec3(0, 0, 0);
+    vec3 _intersection_normal = vec3(0, 0, 0);
+    double _intersection_t;
+
+
+
+    // Calculate Plane with bbminxy and bbminxz
+    /*Plane planeMinXY_XZ = Plane(this->bb_min_, cross(operator-(bbminxy, this->bb_min_), operator-(bbminxz, this->bb_min_)));
+    if (planeMinXY_XZ.intersect(_ray, _intersection_point, _intersection_normal, _intersection_t)) {
+        if ((dot(_intersection_point, e3) <= std::fmax(bbminZ, bbmaxZ)) && (dot(_intersection_point, e3) >= std::fmin(bbminZ, bbmaxZ))) {
+            if ((dot(_intersection_point, e2) <= std::fmax(bbminY, bbmaxY)) && (dot(_intersection_point, e2) >= std::fmin(bbminY, bbmaxY))) {
+                return true;
+            }
+        }
+
+    }*/
+
+    if (intersectPlane2Vectors(_ray, bb_min_, bbminxy, bbminxz, e3, bbminZ, bbmaxZ, e2, bbminY, bbmaxY)) return true;
+    if (intersectPlane2Vectors(_ray, bb_min_, bbminxy, bbminyz, e3, bbminZ, bbmaxZ, e1, bbminX, bbmaxX)) return true;
+    if (intersectPlane2Vectors(_ray, bb_min_, bbminxz, bbminyz, e2, bbminY, bbmaxY, e1, bbminX, bbmaxX)) return true;
+
+    if (intersectPlane2Vectors(_ray, bb_max_, bbmaxxy, bbmaxxz, e3, bbminZ, bbmaxZ, e2, bbminY, bbmaxY)) return true;
+    if (intersectPlane2Vectors(_ray, bb_max_, bbmaxxy, bbmaxyz, e3, bbminZ, bbmaxZ, e1, bbminX, bbmaxX)) return true;
+    if (intersectPlane2Vectors(_ray, bb_max_, bbmaxxz, bbmaxyz, e2, bbminY, bbmaxY, e1, bbminX, bbmaxX)) return true;
+
+    return false;
 }
+
+
+
+
 
 
 //-----------------------------------------------------------------------------
