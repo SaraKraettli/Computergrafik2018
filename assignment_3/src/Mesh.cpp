@@ -195,6 +195,12 @@ void Mesh::compute_bounding_box()
 //-----------------------------------------------------------------------------
 
 
+// Calculate, if the ray intersects a finite Plane, given by a center and two points vec1 and vec2
+// To avoid a some math-problems we couldn't solve, the method requires some more parameters:
+//
+// - _eCheck1, _bbCheck1min, _bbCheck1max (note: min/max denotes if the variable is from bb_min_ or bb_max_)
+// - _eCheck2, _bbCheck2min, _bbCheck2max
+//
 bool intersectPlane2Vectors(const Ray& _ray, const vec3& _center, const vec3& _vec1, const vec3& _vec2,
                              const vec3& _eCheck1, const double& _bbCheck1min, const double& _bbCheck1max,
                              const vec3& _eCheck2, const double& _bbCheck2min, const double& _bbCheck2max) {
@@ -206,9 +212,17 @@ bool intersectPlane2Vectors(const Ray& _ray, const vec3& _center, const vec3& _v
     vec3 e2 = vec3(0, 1, 0);
     vec3 e3 = vec3(0, 0, 1);
 
+    // Create Plane
     Plane planeMinXY_XZ = Plane(_center, cross(operator-(_vec1, _center), operator-(_vec1, _vec2)));
+
+    // If ray intersects plane, check if the intersection point is between center/vec1 AND center/vec2
     if (planeMinXY_XZ.intersect(_ray, _intersection_point, _intersection_normal, _intersection_t)) {
+
+        // Check if x, y or z (depending on _eCheck1) is between _bbCheck1min and _bbCheck1max
+        // Note: _bbCheck1min doesn't mean it's smaller than _bbCheck1max, but that it's from bb_min_
         if ((dot(_intersection_point, _eCheck1) <= std::fmax(_bbCheck1min, _bbCheck1max)) && (dot(_intersection_point, _eCheck1) >= std::fmin(_bbCheck1min, _bbCheck1max))) {
+
+            // Check if x, y or z (depending on _eCheck2) is between _bbCheck2min and _bbCheck2max
             if ((dot(_intersection_point, _eCheck2) <= std::fmax(_bbCheck2min, _bbCheck2max)) && (dot(_intersection_point, _eCheck2) >= std::fmin(_bbCheck2min, _bbCheck2max))) {
                 return true;
             }
@@ -228,10 +242,15 @@ bool Mesh::intersect_bounding_box(const Ray& _ray) const
     * with all triangles of every mesh in the scene. The bounding boxes are computed
     * in `Mesh::compute_bounding_box()`.
     */
+
+    // To get x, y, and z of a vec3 object with the dot-product
+    // Not the best solution, but we found no other one and assumed it's not allowed to change the vec3 class
+    // e.g. generate getters or change access of x,y,z to public
     vec3 e1 = vec3(1, 0, 0);
     vec3 e2 = vec3(0, 1, 0);
     vec3 e3 = vec3(0, 0, 1);
 
+    // Get x, y and z of bb_min_ and of bb_max_
     double bbminX = dot(this->bb_min_, e1);
     double bbminY = dot(this->bb_min_, e2);
     double bbminZ = dot(this->bb_min_, e3);
@@ -240,8 +259,15 @@ bool Mesh::intersect_bounding_box(const Ray& _ray) const
     double bbmaxY = dot(this->bb_max_, e2);
     double bbmaxZ = dot(this->bb_max_, e3);
 
-    // first vector: x and y of bbmin, z of bbmax
-    vec3 bbminxy = vec3(bbminX, bbminY, bbmaxZ);
+
+    // Get the remaining 6 points of the cube
+    // Assuming bb_min_ and bb_max_ are diagonal, then
+    // it's obvious that 3 points of the remaining 6 points are directly connected to bb_min_ and not directly
+    // connected to bb_max_, and the other 3 points are directly connected to bb_max_ and not directly connected
+    // to bb_min_.
+    // By directly connected, we mean that there is just one edge between the points
+    //
+    vec3 bbminxy = vec3(bbminX, bbminY, bbmaxZ); //x and y of bbmin, z of bbmax
     vec3 bbminxz = vec3(bbminX, bbmaxY, bbminZ);
     vec3 bbminyz = vec3(bbmaxX, bbminY, bbminZ);
 
@@ -251,23 +277,7 @@ bool Mesh::intersect_bounding_box(const Ray& _ray) const
     vec3 bbmaxyz = vec3(bbminX, bbmaxY, bbmaxZ);
 
 
-    vec3 _intersection_point = vec3(0, 0, 0);
-    vec3 _intersection_normal = vec3(0, 0, 0);
-    double _intersection_t;
-
-
-
-    // Calculate Plane with bbminxy and bbminxz
-    /*Plane planeMinXY_XZ = Plane(this->bb_min_, cross(operator-(bbminxy, this->bb_min_), operator-(bbminxz, this->bb_min_)));
-    if (planeMinXY_XZ.intersect(_ray, _intersection_point, _intersection_normal, _intersection_t)) {
-        if ((dot(_intersection_point, e3) <= std::fmax(bbminZ, bbmaxZ)) && (dot(_intersection_point, e3) >= std::fmin(bbminZ, bbmaxZ))) {
-            if ((dot(_intersection_point, e2) <= std::fmax(bbminY, bbmaxY)) && (dot(_intersection_point, e2) >= std::fmin(bbminY, bbmaxY))) {
-                return true;
-            }
-        }
-
-    }*/
-
+    // Test for each side of the cube for intersection with the ray
     if (intersectPlane2Vectors(_ray, bb_min_, bbminxy, bbminxz, e3, bbminZ, bbmaxZ, e2, bbminY, bbmaxY)) return true;
     if (intersectPlane2Vectors(_ray, bb_min_, bbminxy, bbminyz, e3, bbminZ, bbmaxZ, e1, bbminX, bbmaxX)) return true;
     if (intersectPlane2Vectors(_ray, bb_min_, bbminxz, bbminyz, e2, bbminY, bbmaxY, e1, bbminX, bbmaxX)) return true;
