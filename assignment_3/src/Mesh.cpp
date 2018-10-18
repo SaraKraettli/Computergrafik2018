@@ -362,14 +362,11 @@ intersect_triangle(const Triangle&  _triangle,
     vec3 b = operator-(_ray.origin, p2);
 
     double matrixAdeterminant = dot(cross(v0, v1), v2);
-    double matrixAdeterminant_0 = dot(cross(b, v1), v2);
-    double matrixAdeterminant_1 = dot(cross(v0, b), v2);
-    double matrixAdeterminant_2 = dot(cross(v0, v1), b);
 
-    double alpha = matrixAdeterminant_0 / matrixAdeterminant;
-    double beta = matrixAdeterminant_1 / matrixAdeterminant;
+    double alpha = dot(cross(b, v1), v2) / matrixAdeterminant;
+    double beta = dot(cross(v0, b), v2) / matrixAdeterminant;
     double gamma = 1 - alpha - beta;
-    _intersection_t = matrixAdeterminant_2 / matrixAdeterminant;
+    _intersection_t = dot(cross(v0, v1), b) / matrixAdeterminant;
 
     if (alpha >= 0 && beta >= 0 && gamma >= 0) {
         _intersection_point = operator+(operator+(operator*(alpha, p0), operator*(beta, p1)), operator*(gamma, p2));
