@@ -157,45 +157,21 @@ void Mesh::compute_normals()
      * - Weigh the normals by their triangles' angles.
      */
 	
-	// create vector of lists which store the neighboring triangles of a vertice (vertice number = position in  vector)
-	std::vector < std::list<Triangle> > vNeighbors;
-	for (int i = 0; i == vertices_.size(); i++) {
-		std::list<Triangle> l;
-		vNeighbors[i] = l;
-	}
-
 	for (Triangle& t : triangles_)
 	{
-		vNeighbors[t.i0].push_back(t);
-		vNeighbors[t.i1].push_back(t);
-		vNeighbors[t.i2].push_back(t);
+		vec3 v1 = vertices_[t.i0].normal + vertices_[t.i0].position;
+		vec3 v2 = vertices_[t.i1].normal + vertices_[t.i1].position;
+		vec3 v3 = vertices_[t.i2].normal + vertices_[t.i2].position;
+		double w0, w1, w2;
+		angleWeights(v1, v2, v3, w0, w1, w2);
+		vertices_[t.i0].normal += vertices_[t.i0].normal*w0;
+		vertices_[t.i1].normal += vertices_[t.i0].normal*w0;
+		vertices_[t.i2].normal += vertices_[t.i0].normal*w0;
 	}
-	// compute normals of vertices
-	int vertexcounter = 0;
-	while (vertexcounter < vertices_.size())
+
+	for (Vertex& v : vertices_)
 	{
-		double numberOfNeighbors = vNeighbors[vertexcounter].size();
-		vec3 newnormal = vec3(0, 0, 0);
-		// take triangles from neighboring list and compute weights
-		while (vNeighbors[vertexcounter].empty() != 0) {
-			Triangle t = vNeighbors[vertexcounter].front();
-			vNeighbors[vertexcounter].pop_front();
-			double weight = 0;
-			vec3 v1 = vertices_[t.i0].normal*vertices_[t.i0].position;
-			vec3 v2 = vertices_[t.i1].normal*vertices_[t.i1].position;
-			vec3 v3 = vertices_[t.i2].normal*vertices_[t.i2].position;
-			double w0; double w1; double w2;
-			angleWeights(v1, v2, v3, w0, w1, w2);
-			if (typeid(vertices_[t.i0]) == typeid(vertices_[vertexcounter]))
-				weight = w0;
-			else if (typeid(vertices_[t.i1]) == typeid(vertices_[vertexcounter]))
-				weight = w1;
-			else weight = w2;
-			// add up new vertex normal
-			newnormal += t.normal * weight;
-		}
-		vertices_[vertexcounter].normal = normalize(operator/(newnormal, numberOfNeighbors));
-		vertexcounter++;
+		v.normal = normalize(v.normal);
 	}
 }
 
