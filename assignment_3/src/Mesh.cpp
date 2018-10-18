@@ -398,7 +398,7 @@ intersect_triangle(const Triangle&  _triangle,
     if (alpha >= 0 && beta >= 0 && gamma >= 0) {
         _intersection_point = operator+(operator+(operator*(alpha, p0), operator*(beta, p1)), operator*(gamma, p2));
         _intersection_normal = _triangle.normal;
-        return true;
+        return _intersection_t > 0 ? true : false;
     } else return false;
 }
 
