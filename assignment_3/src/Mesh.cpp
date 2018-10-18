@@ -377,8 +377,29 @@ intersect_triangle(const Triangle&  _triangle,
     * Refer to [Cramer's Rule](https://en.wikipedia.org/wiki/Cramer%27s_rule) to easily solve it.
      */
 
-    return false;
-}
+    // Matrix A has column vectors v0, v1, v2
+    vec3 v0 = operator-(p0, p2);
+    vec3 v1 = operator-(p1, p2);
+    vec3 v2 = operator-(_ray.direction);
 
+    // Solution-vector b of Cramer's Rule
+    vec3 b = operator-(_ray.origin, p2);
+
+    double matrixAdeterminant = dot(cross(v0, v1), v2);
+    double matrixAdeterminant_0 = dot(cross(b, v1), v2);
+    double matrixAdeterminant_1 = dot(cross(v0, b), v2);
+    double matrixAdeterminant_2 = dot(cross(v0, v1), b);
+
+    double alpha = matrixAdeterminant_0 / matrixAdeterminant;
+    double beta = matrixAdeterminant_1 / matrixAdeterminant;
+    double gamma = 1 - alpha - beta;
+    _intersection_t = matrixAdeterminant_2 / matrixAdeterminant;
+
+    if (alpha >= 0 && beta >= 0 && gamma >= 0) {
+        _intersection_point = operator+(operator+(operator*(alpha, p0), operator*(beta, p1)), operator*(gamma, p2));
+        _intersection_normal = _triangle.normal;
+        return true;
+    } else return false;
+}
 
 //=============================================================================
