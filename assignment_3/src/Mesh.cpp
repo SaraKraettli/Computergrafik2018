@@ -371,19 +371,26 @@ intersect_triangle(const Triangle&  _triangle,
     // Solution-vector b of Cramer's Rule
     vec3 b = operator-(_ray.origin, p2);
 
-    double matrixAdeterminant = dot(cross(v0, v1), v2);
+    double matrixADeterminant = dot(cross(v0, v1), v2);
 
-    double alpha = dot(cross(b, v1), v2) / matrixAdeterminant;
-    double beta = dot(cross(v0, b), v2) / matrixAdeterminant;
+    // Calculating alpha, beta and gamma by applying Cramer's Rule
+    double alpha = dot(cross(b, v1), v2) / matrixADeterminant; // Det(A_0) / Det(A)
+    double beta = dot(cross(v0, b), v2) / matrixADeterminant;  // A_0 means the matrix (b | v1 | v2)
     double gamma = 1 - alpha - beta;
-    _intersection_t = dot(cross(v0, v1), b) / matrixAdeterminant;
+    _intersection_t = dot(cross(v0, v1), b) / matrixADeterminant;
 
+    // If point is inside the triangle
     if (alpha >= 0 && beta >= 0 && gamma >= 0) {
+
+        // Calculate intersection point
         _intersection_point = operator+(operator+(operator*(alpha, p0), operator*(beta, p1)), operator*(gamma, p2));
+
         if (draw_mode_ ==  FLAT) {
             _intersection_normal = _triangle.normal;
         } else {
-            _intersection_normal = operator+(operator+(alpha*vertices_[_triangle.i0].normal, beta*vertices_[_triangle.i1].normal), gamma*vertices_[_triangle.i2].normal);
+            _intersection_normal = operator+(
+                    operator+(alpha*vertices_[_triangle.i0].normal, beta*vertices_[_triangle.i1].normal),
+                    gamma*vertices_[_triangle.i2].normal);
         }
 
         return _intersection_t > 0 ? true : false;
