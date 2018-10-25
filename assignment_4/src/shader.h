@@ -52,7 +52,7 @@ public:
     void set_uniform(const char* name, const T &value, bool optional = false);
 
 private:
-    /// loads a vertex/fragmend/geometry shader from a file and compiles it
+    /// loads a vertex/fragment/geometry shader from a file and compiles it
     /// \param filename the location and name of the shader
     /// \param type the type of the shader (vertex, geometry, fragment)
     GLint load_and_compile(const char* filename, GLenum type);
@@ -62,7 +62,7 @@ private:
     GLint pid_;
     /// id of the vertex shader
     GLint vid_;
-    /// id of the fragmend shader
+    /// id of the fragment shader
     GLint fid_;
     /// id of the geometry shader
     GLint gid_;

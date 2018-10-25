@@ -27,7 +27,7 @@ Building under Windows Visual Studio
   * If no major errors occur, click `Generate`
   * Start Visual Studio
   * Use `Open Project` to load your `SolarSystem.sln`
-  * On the right, there should be the solution explorer. Find the project `SolarViewer`, right click and choose `Set as StartUp Project`
+  * On the right, there should be the solution explorer. Find the project `SolarSystem`, right click and choose `Set as StartUp Project`
   * Press CTRL + F5 to compile and run
 
 Documentation
@@ -44,6 +44,9 @@ All earth textures are from the [NASA Earth Observatory](http://earthobservatory
 
 Keyboard Settings
 -----------------
+Note: in the initial project, only the 'r' and 'g' keys will have any effect,
+the rest will be implemented by you in the upcoming exercise assignments.
+
   * arrow keys: Navigation Camera
   * W,A,S,D:	Navigation Ship
   * g:		toggle greyscale
@@ -61,5 +64,5 @@ Assignment 4: OpenGL Hello World
 Your only task for the OpenGL part of Assignment 4 is to make sure the OpenGL
 exercise framework code builds and runs on your machine. Please submit a
 screenshot of the "Solar System" window running on your machine. Refer to the
-assignment handout PDF on Moodle for an example of what you should see if
+assignment handout PDF on ILIAS for an example of what you should see if
 everything is working properly.
