@@ -476,9 +476,40 @@ void Solar_viewer::draw_scene(mat4& _projection, mat4& _view)
      *  Hint: See how it is done for the Sun in the code above.
      */
 
+
+
+    draw_Planet(_projection, _view, mercury_);
+    draw_Planet(_projection, _view, venus_);
+    draw_Planet(_projection, _view, earth_);
+    draw_Planet(_projection, _view, mars_);
+
+    draw_Planet(_projection, _view, moon_);
+    draw_Planet(_projection, _view, stars_);
+
+
     // check for OpenGL errors
     glCheckError();
 }
+
+
+void Solar_viewer::draw_Planet(mat4 &_projection, mat4 &_view, Planet &p) {
+
+    mat4 m_matrix;
+    mat4 mv_matrix;
+    mat4 mvp_matrix;
+
+    m_matrix = mat4::rotate_y(p.angle_self_) * mat4::scale(p.radius_);
+    m_matrix = mat4::translate(p.pos_) * m_matrix;
+    mv_matrix = _view * m_matrix;
+    mvp_matrix = _projection * mv_matrix;
+    color_shader_.use();
+    color_shader_.set_uniform("modelview_projection_matrix", mvp_matrix);
+    color_shader_.set_uniform("tex", 0);
+    color_shader_.set_uniform("greyscale", (int)greyscale_);
+    p.tex_.bind();
+    unit_sphere_.draw();
+}
+
 
 void Solar_viewer::randomize_planets()
 {
