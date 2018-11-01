@@ -382,8 +382,10 @@ void Solar_viewer::paint()
 	float radius = sun_.radius_;
 	*/
 
+	float hack = 0.0001;        // If the eye was exactly above the planet, then the screen was white.
+	                            // This hack moves the eye a little bit
 	float radius = planet_to_look_at_->radius_*dist_factor_;
-	vec4     eye = vec4(planet_to_look_at_->pos_.x, planet_to_look_at_->pos_.y, planet_to_look_at_->pos_.z +radius,1.0);
+	vec4     eye = vec4(planet_to_look_at_->pos_.x, planet_to_look_at_->pos_.y + hack, planet_to_look_at_->pos_.z + radius,1.0);
     vec4  center = planet_to_look_at_->pos_;
     vec4      up = vec4(0,1,0,0);
 
@@ -398,9 +400,9 @@ void Solar_viewer::paint()
 
 	// make rotation around object possible
 	if (!in_ship_) {
-		eye = mat4::rotate_x(x_angle_)*eye;
+		eye = mat4::translate(center)*mat4::rotate_y(y_angle_)*mat4::rotate_x(x_angle_)*mat4::translate(vec3(-center.x, -center.y, -center.z))*eye;
 	}
-	eye = mat4::rotate_y(y_angle_)*eye;
+	//eye = mat4::rotate_y(y_angle_)*eye;
 	
 	mat4 view = mat4::look_at(vec3(eye), vec3(center), vec3(up));
 
