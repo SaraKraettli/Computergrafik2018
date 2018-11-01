@@ -228,19 +228,24 @@ void Solar_viewer::update_body_positions() {
      * */
 
     // Positioning the earth
-    earth_.pos_ = mat4::rotate_y(earth_.angle_orbit_)*earth_.pos_;
+    //earth_.pos_ = mat4::rotate_y(earth_.angle_orbit_)*earth_.pos_;  // Note: angle_orbit_ should be angle_step_orbit_
+    earth_.pos_ = mat4::rotate_y(earth_.angle_orbit_ * 360)*vec4(earth_.distance_, 0, 0, 1.0);
 
     // Positioning the Moon by first translating it as if the earth is at the center, then rotate it and translate it back
-    moon_.pos_ = mat4::translate(vec3(earth_.pos_.x, earth_.pos_.y, earth_.pos_.z))*(mat4::rotate_y(moon_.angle_orbit_)*(mat4::translate(vec3(-earth_.pos_.x, -earth_.pos_.y, -earth_.pos_.z))*moon_.pos_));
+    //moon_.pos_ = mat4::translate(vec3(earth_.pos_.x, earth_.pos_.y, earth_.pos_.z))*(mat4::rotate_y(moon_.angle_orbit_)*(mat4::translate(vec3(-earth_.pos_.x, -earth_.pos_.y, -earth_.pos_.z))*moon_.pos_));
+    moon_.pos_ = mat4::translate(earth_.pos_)*mat4::rotate_y(moon_.angle_orbit_ * 360)*vec4(moon_.distance_, 0, 0, 1.0);
 
     // Positioning mercury
-    mercury_.pos_ = mat4::rotate_y(mercury_.angle_orbit_)*mercury_.pos_;
+    //mercury_.pos_ = mat4::rotate_y(mercury_.angle_orbit_)*mercury_.pos_;
+    mercury_.pos_ = mat4::rotate_y(mercury_.angle_orbit_ * 360)*vec4(mercury_.distance_, 0, 0, 1.0);
 
     // Positioning venus
-    venus_.pos_ = mat4::rotate_y(venus_.angle_orbit_)*venus_.pos_;
+    //venus_.pos_ = mat4::rotate_y(venus_.angle_orbit_)*venus_.pos_;
+    venus_.pos_ = mat4::rotate_y(venus_.angle_orbit_ * 360)*vec4(venus_.distance_, 0, 0, 1.0);
 
     // Positioning mars
-    mars_.pos_ = mat4::rotate_y(mars_.angle_orbit_)*mars_.pos_;
+    //mars_.pos_ = mat4::rotate_y(mars_.angle_orbit_)*mars_.pos_;
+    mars_.pos_ = mat4::rotate_y(mars_.angle_orbit_ * 360)*vec4(mars_.distance_, 0, 0, 1.0);
 
 
 }
