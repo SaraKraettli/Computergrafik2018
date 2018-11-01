@@ -9,6 +9,8 @@ How we solved the exercise:
  - Finally, we fixed all bugs in the code and implemented
    the spaceship
 
+ - Note: We needed to add a class-method, so we also changed the file solar_viewer.h
+
 Problems we encountered:
 
  - The planets were accelerating instead of continuously move around the sun
