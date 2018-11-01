@@ -508,6 +508,18 @@ void Solar_viewer::draw_scene(mat4& _projection, mat4& _view)
     draw_Planet(_projection, _view, stars_);
 
 
+
+    m_matrix = mat4::rotate_y(ship_.angle_)*mat4::scale(ship_.radius_);
+    m_matrix = mat4::translate(ship_.pos_) * m_matrix;
+    mv_matrix = _view * m_matrix;
+    mvp_matrix = _projection * mv_matrix;
+    color_shader_.use();
+    color_shader_.set_uniform("modelview_projection_matrix", mvp_matrix);
+    color_shader_.set_uniform("tex", 0);
+    color_shader_.set_uniform("greyscale", (int)greyscale_);
+    ship_.tex_.bind();
+    ship_.draw();
+
     // check for OpenGL errors
     glCheckError();
 }
