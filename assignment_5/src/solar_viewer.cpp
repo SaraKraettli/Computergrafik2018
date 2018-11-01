@@ -93,6 +93,24 @@ keyboard(int key, int scancode, int action, int mods)
              *    - 2.5 < `dist_factor_` < 20.0
              */
 
+			// decrease 
+			case GLFW_KEY_8:
+			{
+				float decrease = 0.5;
+				if (dist_factor_ > 2.5 + decrease)
+					dist_factor_ -= decrease;
+				break;
+			}
+
+			// increase
+			case GLFW_KEY_9:
+			{
+				float increase = 0.5;
+				if (dist_factor_ < 20.0 - increase)
+				dist_factor_ += increase;
+				break;
+			}
+
             case GLFW_KEY_R:
             {
                 randomize_planets();
@@ -351,14 +369,37 @@ void Solar_viewer::paint()
      *
      *  Hint: planet centers are stored in "Planet::pos_".
      */
-    // For now, view the sun from a fixed position...
-    vec4     eye = vec4(0,0,7,1.0);
-    vec4  center = sun_.pos_;
-    vec4      up = vec4(0,1,0,0);
-    float radius = sun_.radius_;
-    mat4    view = mat4::look_at(vec3(eye), vec3(center), vec3(up));
+   
+	 /* For now, view the sun from a fixed position...
+	vec4     eye = vec4(0, 0, 7, 1.0);
+	vec4  center = sun_.pos_;
+	vec4      up = vec4(0, 1, 0, 0);
+	float radius = sun_.radius_;
+	*/
 
-    billboard_x_angle_ = billboard_y_angle_ = 0.0f;
+	float radius = planet_to_look_at_->radius_*dist_factor_;
+	vec4     eye = vec4(planet_to_look_at_->pos_.x, planet_to_look_at_->pos_.y, planet_to_look_at_->pos_.z +radius,1.0);
+    vec4  center = planet_to_look_at_->pos_;
+    vec4      up = vec4(0,1,0,0);
+
+	// place eye if ship is viewed
+	// float above decides how high up the camera is behind the ship
+	if (in_ship_) {
+		float above = 2.0;
+		eye = vec4(ship_.pos_.x, ship_.pos_.y + above, ship_.pos_.z + ship_.radius_, 1.0);
+		// ensure the view remains at a fixed orientation with respect to the ship as the ship turns
+		center = mat4::rotate_x(ship_.angle_)*ship_.pos_;
+	}
+
+	// make rotation around object possible
+	if (!in_ship_) {
+		eye = mat4::rotate_x(x_angle_)*eye;
+	}
+	eye = mat4::rotate_y(y_angle_)*eye;
+	
+	mat4 view = mat4::look_at(vec3(eye), vec3(center), vec3(up));
+
+    billboard_x_angle_ = billboard_y_angle_ = 0.0f; // what is this doing?
 
     mat4 projection = mat4::perspective(fovy_, (float)width_/(float)height_, near_, far_);
     draw_scene(projection, view);
