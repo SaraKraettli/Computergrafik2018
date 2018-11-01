@@ -484,16 +484,16 @@ void Solar_viewer::draw_scene(mat4& _projection, mat4& _view)
      */
 
 
-    draw_Planet(_projection, _view, mercury_);
-    draw_Planet(_projection, _view, venus_);
-    draw_Planet(_projection, _view, earth_);
-    draw_Planet(_projection, _view, mars_);
+    draw_planet(_projection, _view, mercury_);
+    draw_planet(_projection, _view, venus_);
+    draw_planet(_projection, _view, earth_);
+    draw_planet(_projection, _view, mars_);
 
-    draw_Planet(_projection, _view, moon_);
-    draw_Planet(_projection, _view, stars_);
+    draw_planet(_projection, _view, moon_);
+    draw_planet(_projection, _view, stars_);
 
     // Note: Maybe it would be better to have a superclass "drawable" which the ship and planets could extend,
-    //       so the ship could be painted with the method draw_Planet.
+    //       so the ship could be painted with the method draw_planet.
     //       For now, we just duplicate the code and paint the ship separately
     m_matrix = mat4::rotate_y(ship_.angle_)*mat4::scale(ship_.radius_);
     m_matrix = mat4::translate(ship_.pos_) * m_matrix;
@@ -511,7 +511,7 @@ void Solar_viewer::draw_scene(mat4& _projection, mat4& _view)
 }
 
 
-void Solar_viewer::draw_Planet(mat4 &_projection, mat4 &_view, Planet &p) {
+void Solar_viewer::draw_planet(mat4 &_projection, mat4 &_view, Planet &p) {
 
     mat4 m_matrix;
     mat4 mv_matrix;
