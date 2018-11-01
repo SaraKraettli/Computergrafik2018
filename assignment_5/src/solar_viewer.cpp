@@ -384,24 +384,38 @@ void Solar_viewer::paint()
 
 	float hack = 0.0001;        // If the eye was exactly above the planet, then the screen was white.
 	                            // This hack moves the eye a little bit
-	float radius = planet_to_look_at_->radius_*dist_factor_;
-	vec4     eye = vec4(planet_to_look_at_->pos_.x, planet_to_look_at_->pos_.y + hack, planet_to_look_at_->pos_.z + radius,1.0);
-    vec4  center = planet_to_look_at_->pos_;
-    vec4      up = vec4(0,1,0,0);
+
+    vec4 up = vec4(0,1,0,0);
+    vec4 center;
+    vec4 eye;
+    if (!in_ship_) {
+        float radius = planet_to_look_at_->radius_*dist_factor_;
+        eye = vec4(0, 0, radius, 1);
+        center = planet_to_look_at_->pos_;
+
+        eye = mat4::translate(center)*mat4::rotate_y(y_angle_)*mat4::rotate_x(x_angle_-hack)*eye;
+    } else {
+        float add_dist_x = 3.0;
+        eye = vec4(0, ship_.radius_*dist_factor_, -ship_.radius_*dist_factor_*add_dist_x, 1.0);
+        center = ship_.pos_;
+
+        eye = mat4::translate(center)*mat4::rotate_y(ship_.angle_)*eye;
+    }
+
+
+
 
 	// place eye if ship is viewed
 	// float above decides how high up the camera is behind the ship
-	if (in_ship_) {
-		float above = 2.0;
-		eye = vec4(ship_.pos_.x, ship_.pos_.y + above, ship_.pos_.z + ship_.radius_, 1.0);
+	/*if (in_ship_) {
 		// ensure the view remains at a fixed orientation with respect to the ship as the ship turns
 		center = mat4::rotate_x(ship_.angle_)*ship_.pos_;
-	}
+	}*/
 
 	// make rotation around object possible
-	if (!in_ship_) {
-		eye = mat4::translate(center)*mat4::rotate_y(y_angle_)*mat4::rotate_x(x_angle_)*mat4::translate(vec3(-center.x, -center.y, -center.z))*eye;
-	}
+	/*if (!in_ship_) {
+		eye = mat4::translate(center)*mat4::rotate_y(y_angle_)*mat4::rotate_x(x_angle_-hack)*eye;
+	}*/
 	//eye = mat4::rotate_y(y_angle_)*eye;
 	
 	mat4 view = mat4::look_at(vec3(eye), vec3(center), vec3(up));
