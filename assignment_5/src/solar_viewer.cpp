@@ -401,22 +401,6 @@ void Solar_viewer::paint()
 
         eye = mat4::translate(center)*mat4::rotate_y(ship_.angle_)*eye;
     }
-
-
-
-
-	// place eye if ship is viewed
-	// float above decides how high up the camera is behind the ship
-	/*if (in_ship_) {
-		// ensure the view remains at a fixed orientation with respect to the ship as the ship turns
-		center = mat4::rotate_x(ship_.angle_)*ship_.pos_;
-	}*/
-
-	// make rotation around object possible
-	/*if (!in_ship_) {
-		eye = mat4::translate(center)*mat4::rotate_y(y_angle_)*mat4::rotate_x(x_angle_-hack)*eye;
-	}*/
-	//eye = mat4::rotate_y(y_angle_)*eye;
 	
 	mat4 view = mat4::look_at(vec3(eye), vec3(center), vec3(up));
 
@@ -498,7 +482,6 @@ void Solar_viewer::draw_scene(mat4& _projection, mat4& _view)
      */
 
 
-
     draw_Planet(_projection, _view, mercury_);
     draw_Planet(_projection, _view, venus_);
     draw_Planet(_projection, _view, earth_);
@@ -507,8 +490,9 @@ void Solar_viewer::draw_scene(mat4& _projection, mat4& _view)
     draw_Planet(_projection, _view, moon_);
     draw_Planet(_projection, _view, stars_);
 
-
-
+    // Note: Maybe it would be better to have a superclass "drawable" which the ship and planets could extend,
+    //       so the ship could be painted with the method draw_Planet.
+    //       For now, we just duplicate the code and paint the ship separately
     m_matrix = mat4::rotate_y(ship_.angle_)*mat4::scale(ship_.radius_);
     m_matrix = mat4::translate(ship_.pos_) * m_matrix;
     mv_matrix = _view * m_matrix;
