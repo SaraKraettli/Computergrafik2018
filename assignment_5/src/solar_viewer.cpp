@@ -233,6 +233,8 @@ void Solar_viewer::update_body_positions() {
 
     // Positioning the Moon by first translating it as if the earth is at the center, then rotate it and translate it back
     //moon_.pos_ = mat4::translate(vec3(earth_.pos_.x, earth_.pos_.y, earth_.pos_.z))*(mat4::rotate_y(moon_.angle_orbit_)*(mat4::translate(vec3(-earth_.pos_.x, -earth_.pos_.y, -earth_.pos_.z))*moon_.pos_));
+
+    // Positioning the moon like other planets, but translate it to the earth
     moon_.pos_ = mat4::translate(earth_.pos_)*mat4::rotate_y(moon_.angle_orbit_ * 360)*vec4(moon_.distance_, 0, 0, 1.0);
 
     // Positioning mercury
