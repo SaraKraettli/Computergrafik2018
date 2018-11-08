@@ -362,7 +362,16 @@ void Solar_viewer::paint()
      *  drawn to produce the sun's halo is orthogonal to the view vector for
      *  the sun's center.
      */
-    billboard_x_angle_ = billboard_y_angle_ = 0.0f;
+
+    float xz_hypothenuse = sqrt(eye.x*eye.x + eye.z*eye.z);
+    float xzy_hypothenuse = sqrt(xz_hypothenuse*xz_hypothenuse + eye.y*eye.y);
+    if (xz_hypothenuse == 0) xz_hypothenuse = 0.000001;
+    if (xzy_hypothenuse == 0) xzy_hypothenuse = 0.000001;
+    float sin_alpha = std::asin(eye.z / xz_hypothenuse)*(180/3.1516);
+    float sin_beta = std::asin(eye.y / xzy_hypothenuse)*(180/3.1516);
+
+    billboard_y_angle_ = (eye.x > 0 ? -sin_alpha:sin_alpha) + 90;
+    billboard_x_angle_ = (eye.x > 0 ? -sin_beta:sin_beta);
 
     mat4 projection = mat4::perspective(fovy_, (float)width_/(float)height_, near_, far_);
     draw_scene(projection, view);
@@ -470,6 +479,16 @@ void Solar_viewer::draw_scene(mat4& _projection, mat4& _view)
     *     billboard_y_angle_
     *   - Bind the texture for and draw sunglow_
     **/
+
+    m_matrix = mat4::rotate_y(billboard_y_angle_)*mat4::rotate_x(billboard_x_angle_)*mat4::scale((sun_.radius_*3));
+    mv_matrix = _view * m_matrix;
+    mvp_matrix = _projection * mv_matrix;
+    color_shader_.use();
+    color_shader_.set_uniform("modelview_projection_matrix", mvp_matrix);
+    color_shader_.set_uniform("tex",0);
+    color_shader_.set_uniform("greyscale", static_cast<int>(greyscale_));
+    sunglow_.tex_.bind();
+    sunglow_.draw();
 
 
     // check for OpenGL errors
