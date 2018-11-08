@@ -488,7 +488,16 @@ void Solar_viewer::draw_scene(mat4& _projection, mat4& _view)
     color_shader_.set_uniform("tex",0);
     color_shader_.set_uniform("greyscale", static_cast<int>(greyscale_));
     sunglow_.tex_.bind();
+
+    glDisable(GL_DEPTH_TEST);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
     sunglow_.draw();
+
+    glDisable(GL_BLEND);
+    glEnable(GL_DEPTH_TEST);
+
 
 
     // check for OpenGL errors

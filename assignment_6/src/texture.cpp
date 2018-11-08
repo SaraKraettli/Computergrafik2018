@@ -107,12 +107,22 @@ bool Texture::createSunBillboardTexture()
     *   - Experiment with the color and with how fast you change the transparency until the effect satisfies you
     **/
 
+
+
+
     for (int col = 0; col < width; ++col) {
         for (int row = 0; row < height; ++row) {
             img[(row * width + col) * 4 + 0] = 255; // R
-            img[(row * width + col) * 4 + 1] = 255; // G
-            img[(row * width + col) * 4 + 2] = 255; // B
-            img[(row * width + col) * 4 + 3] = 255; // A
+            img[(row * width + col) * 4 + 1] = 220; // G
+            img[(row * width + col) * 4 + 2] = 0; // B
+
+            float xFator = std::pow((float) width /2 -col, 2);
+            float yFactor = std::pow((float) height /2 -row, 2);
+            float ordnungFix = (float) 255 / (std::pow(width/2, 2) + std::pow(height/2, 2));
+            float shrinkFactor = 9.0f;
+            float subtract = shrinkFactor*(xFator + yFactor)*ordnungFix;
+            img[(row * width + col) * 4 + 3] = 255 - (subtract > 255 ? 255:subtract); // A
+
         }
     }
 
