@@ -57,8 +57,6 @@ protected:
     /// paint function - called when the window should be refreshed
     virtual void paint();
 
-    virtual void draw_planet(mat4 &_projection, mat4 &_view, Planet &p);
-
     /// keyboard interaction
     virtual void keyboard(int key, int scancode, int action, int mods);
 

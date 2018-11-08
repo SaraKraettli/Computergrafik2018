@@ -88,23 +88,19 @@ keyboard(int key, int scancode, int action, int mods)
                 break;
             }
 
-			// decrease 
-			case GLFW_KEY_8:
-			{
-				float decrease = 0.2;
-				if (dist_factor_ > 2.5 + decrease)
-					dist_factor_ -= decrease;
-				break;
-			}
+            case GLFW_KEY_9:
+            {
+                dist_factor_ += 0.1f;
+                dist_factor_ = std::min(dist_factor_,20.0f);
+                break;
+            }
 
-			// increase
-			case GLFW_KEY_9:
-			{
-				float increase = 0.2;
-				if (dist_factor_ < 20.0 - increase)
-				dist_factor_ += increase;
-				break;
-			}
+            case GLFW_KEY_8:
+            {
+                dist_factor_ -= 0.1f;
+                dist_factor_ = std::max(dist_factor_,2.5f);
+                break;
+            }
 
             case GLFW_KEY_R:
             {
@@ -212,30 +208,15 @@ keyboard(int key, int scancode, int action, int mods)
 // around their orbits. This position is needed to set up the camera in the scene
 // (see Solar_viewer::paint)
 void Solar_viewer::update_body_positions() {
+    std::array<Planet *, 4> planets = { &mercury_, &venus_, &earth_, &mars_};
+    for (Planet *p : planets)
+        p->pos_ = mat4::rotate_y(p->angle_orbit_) * vec4(p->distance_, 0, 0, 1);
 
-    // Positioning the earth
-    //earth_.pos_ = mat4::rotate_y(earth_.angle_orbit_)*earth_.pos_;  // Note: angle_orbit_ should be angle_step_orbit_
-    earth_.pos_ = mat4::rotate_y(earth_.angle_orbit_ * 360)*vec4(earth_.distance_, 0, 0, 1.0);
-
-    // Positioning the Moon by first translating it as if the earth is at the center, then rotate it and translate it back
-    //moon_.pos_ = mat4::translate(vec3(earth_.pos_.x, earth_.pos_.y, earth_.pos_.z))*(mat4::rotate_y(moon_.angle_orbit_)*(mat4::translate(vec3(-earth_.pos_.x, -earth_.pos_.y, -earth_.pos_.z))*moon_.pos_));
-
-    // Positioning the moon like other planets, but translate it to the earth
-    moon_.pos_ = mat4::translate(earth_.pos_)*mat4::rotate_y(moon_.angle_orbit_ * 360)*vec4(moon_.distance_, 0, 0, 1.0);
-
-    // Positioning mercury
-    //mercury_.pos_ = mat4::rotate_y(mercury_.angle_orbit_)*mercury_.pos_;
-    mercury_.pos_ = mat4::rotate_y(mercury_.angle_orbit_ * 360)*vec4(mercury_.distance_, 0, 0, 1.0);
-
-    // Positioning venus
-    //venus_.pos_ = mat4::rotate_y(venus_.angle_orbit_)*venus_.pos_;
-    venus_.pos_ = mat4::rotate_y(venus_.angle_orbit_ * 360)*vec4(venus_.distance_, 0, 0, 1.0);
-
-    // Positioning mars
-    //mars_.pos_ = mat4::rotate_y(mars_.angle_orbit_)*mars_.pos_;
-    mars_.pos_ = mat4::rotate_y(mars_.angle_orbit_ * 360)*vec4(mars_.distance_, 0, 0, 1.0);
-
-
+    // translate by negative distance so that an approximately correct
+    // side of the moon faces earth:
+    moon_.pos_ = mat4::translate(earth_.pos_) * (
+                mat4::rotate_y(moon_.angle_orbit_) *
+                vec4(-moon_.distance_, 0, 0, 1));
 }
 
 //-----------------------------------------------------------------------------
@@ -345,41 +326,38 @@ void Solar_viewer::paint()
     // clear framebuffer and depth buffer first
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	 /* For now, view the sun from a fixed position...
-	vec4     eye = vec4(0, 0, 7, 1.0);
-	vec4  center = sun_.pos_;
-	vec4      up = vec4(0, 1, 0, 0);
-	float radius = sun_.radius_;
-	*/
+    vec4 eye, center, up;
 
-	float hack = 0.0001;        // If the eye was exactly above the planet, then the screen was white.
-	                            // This hack moves the eye a little bit
-
-    vec4 up = vec4(0,1,0,0);
-    vec4 center;
-    vec4 eye;
-    if (!in_ship_) {
-        float radius = planet_to_look_at_->radius_*dist_factor_;
-        eye = vec4(0, 0, radius, 1);
+    if (in_ship_)
+    {
+        // - We use a hard-coded multiple of the ship radius, since using the ship's radius
+        //   directly places us too close
+        float radius = 5.0f * ship_.radius_;
+        // - The vector pointing from the ship's rear to its front is given by a
+        //   rotation of (0, 0, 1) around the y axis by ship_.angle_. To move the
+        //   eye behind the ship, we need to offset in the -z direction;
+        // - To position the camera slightly above the ship, we first rotate
+        //   (0, 0, -1) ccw around the x axis (producing a positive y
+        //   offset). This rotation must happen before the rotation by ship_.angle_
+        //   (otherwise rotating the ship will cause the camera to wobble),
+        //   which is why we can't just use ship.direction_.
+        center = vec4(ship_.pos_, 1);
+        // add the ship angle to the rotation so the viewing angle stays constant w.r.t. the ship
+        mat4 rot = mat4::rotate_y(y_angle_ + ship_.angle_) * mat4::rotate_x(15.0f);
+        eye = center + rot * vec4(0, 0, - dist_factor_ * radius, 0);
+        up  = rot * vec4(0, 1, 0, 0);
+    } else // not in ship
+    {
         center = planet_to_look_at_->pos_;
-
-        eye = mat4::translate(center)*mat4::rotate_y(y_angle_)*mat4::rotate_x(x_angle_-hack)*eye;
-    } else {
-        float add_dist_x = 3.0;
-        eye = vec4(0, ship_.radius_*dist_factor_, -ship_.radius_*dist_factor_*add_dist_x, 1.0);
-        center = ship_.pos_;
-
-        eye = mat4::translate(center)*mat4::rotate_y(ship_.angle_)*eye;
+        mat4 rot = mat4::rotate_y(y_angle_) * mat4::rotate_x(x_angle_);
+        float radius = planet_to_look_at_->radius_;
+        eye = center + rot * vec4(0, 0, (dist_factor_ * radius), 0);
+        up = rot * vec4(0, 1, 0, 0);
     }
-	
-	mat4 view = mat4::look_at(vec3(eye), vec3(center), vec3(up));
 
-	/** \todo Orient the billboard used to display the sun's glow
-	*  Update billboard_x_andle_ and billboard_y_angle_ so that the billboard plane
-	*  drawn to produce the sun's halo is orthogonal to the view vector for
-	*  the sun's center.
-	*/
-    billboard_x_angle_ = billboard_y_angle_ = 0.0f; // what is this doing?
+    mat4 view = mat4::look_at(vec3(eye), vec3(center), vec3(up));
+
+    billboard_x_angle_ = billboard_y_angle_ = 0.0f;
 
     mat4 projection = mat4::perspective(fovy_, (float)width_/(float)height_, near_, far_);
     draw_scene(projection, view);
@@ -388,7 +366,6 @@ void Solar_viewer::paint()
 
 
 //-----------------------------------------------------------------------------
-
 
 void Solar_viewer::draw_scene(mat4& _projection, mat4& _view)
 {
@@ -436,69 +413,44 @@ void Solar_viewer::draw_scene(mat4& _projection, mat4& _view)
     sun_.tex_.bind();
     unit_sphere_.draw();
 
-    draw_planet(_projection, _view, mercury_);
-    draw_planet(_projection, _view, venus_);
-    draw_planet(_projection, _view, earth_);
-    draw_planet(_projection, _view, mars_);
+    auto draw_planet = [&,this](Planet &planet)
+    {
+        mat4 m_matrix = mat4::translate(planet.pos_) *
+                mat4::scale(planet.radius_) *
+                mat4::rotate_y(planet.angle_self_);
+        mat4 mv_matrix  = _view * m_matrix;
+        mat4 mvp_matrix = _projection * mv_matrix;
+        color_shader_.use();
+        color_shader_.set_uniform("modelview_projection_matrix", mvp_matrix);
+        color_shader_.set_uniform("tex",0);
+        color_shader_.set_uniform("greyscale", static_cast<int>(greyscale_));
+        planet.tex_.bind();
+        unit_sphere_.draw();
+    };
 
-    draw_planet(_projection, _view, moon_);
-    draw_planet(_projection, _view, stars_);
+    draw_planet(stars_);
 
-    // Note: Maybe it would be better to have a superclass "drawable" which the ship and planets could extend,
-    //       so the ship could be painted with the method draw_planet.
-    //       For now, we just duplicate the code and paint the ship separately
-    m_matrix = mat4::rotate_y(ship_.angle_)*mat4::scale(ship_.radius_);
-    m_matrix = mat4::translate(ship_.pos_) * m_matrix;
+
+    draw_planet(mercury_);
+    draw_planet(venus_);
+    draw_planet(moon_);
+    draw_planet(mars_);
+    draw_planet(earth_);
+
+    // ship
+    m_matrix = mat4::translate(ship_.pos_)*mat4::rotate_y(ship_.angle_)*mat4::scale(ship_.radius_);
     mv_matrix = _view * m_matrix;
     mvp_matrix = _projection * mv_matrix;
     color_shader_.use();
     color_shader_.set_uniform("modelview_projection_matrix", mvp_matrix);
-    color_shader_.set_uniform("tex", 0);
-    color_shader_.set_uniform("greyscale", (int)greyscale_);
+    color_shader_.set_uniform("tex",0);
+    color_shader_.set_uniform("greyscale", static_cast<int>(greyscale_));
     ship_.tex_.bind();
     ship_.draw();
 
-
-	/** \todo Switch from using color_shader_ to the fancier shaders you'll
-	 * implement in this assignment:
-	 *      mercury, venus, moon, mars, ship: phong_shader_
-	 *      earth: earth_shader_
-	 *      stars, sunglow: still use color_shader_
-	 *  You'll need to make sure all the GLSL uniform variables are set. For
-	 *  Phong shading, you need to pass in the modelview matrix, the normal transformation
-	 *  matrix, and light position in addition to the color_shader_ parameters.
-	 */
-
-	 /** \todo Render the sun's halo here using the "color_shader_"
-	 *   - Construct a model matrix that scales the billboard to 3 times the
-	 *     sun's radius and orients it according to billboard_x_angle_ and
-	 *     billboard_y_angle_
-	 *   - Bind the texture for and draw sunglow_
-	 **/
-
-	 // check for OpenGL errors
+    // check for OpenGL errors
     glCheckError();
 }
-
-
-void Solar_viewer::draw_planet(mat4 &_projection, mat4 &_view, Planet &p) {
-
-    mat4 m_matrix;
-    mat4 mv_matrix;
-    mat4 mvp_matrix;
-
-    m_matrix = mat4::rotate_y(p.angle_self_) * mat4::scale(p.radius_);
-    m_matrix = mat4::translate(p.pos_) * m_matrix;
-    mv_matrix = _view * m_matrix;
-    mvp_matrix = _projection * mv_matrix;
-    color_shader_.use();
-    color_shader_.set_uniform("modelview_projection_matrix", mvp_matrix);
-    color_shader_.set_uniform("tex", 0);
-    color_shader_.set_uniform("greyscale", (int)greyscale_);
-    p.tex_.bind();
-    unit_sphere_.draw();
-}
-
 
 void Solar_viewer::randomize_planets()
 {
