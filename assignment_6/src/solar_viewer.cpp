@@ -367,8 +367,8 @@ void Solar_viewer::paint()
     float xzy_hypothenuse = sqrt(xz_hypothenuse*xz_hypothenuse + eye.y*eye.y);
     if (xz_hypothenuse == 0) xz_hypothenuse = 0.000001;
     if (xzy_hypothenuse == 0) xzy_hypothenuse = 0.000001;
-    float sin_alpha = std::asin(eye.z / xz_hypothenuse)*(180/3.1516);
-    float sin_beta = std::asin(eye.y / xzy_hypothenuse)*(180/3.1516);
+    float sin_alpha = std::asin(eye.z / xz_hypothenuse)*(180/3.1415926535);
+    float sin_beta = std::asin(eye.y / xzy_hypothenuse)*(180/3.1415926535);
 
     billboard_y_angle_ = (eye.x > 0 ? -sin_alpha:sin_alpha) + 90;
     billboard_x_angle_ = (eye.x > 0 ? -sin_beta:sin_beta);
