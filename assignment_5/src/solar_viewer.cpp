@@ -96,7 +96,7 @@ keyboard(int key, int scancode, int action, int mods)
 			// decrease 
 			case GLFW_KEY_8:
 			{
-				float decrease = 0.5;
+				float decrease = 0.2;
 				if (dist_factor_ > 2.5 + decrease)
 					dist_factor_ -= decrease;
 				break;
@@ -105,7 +105,7 @@ keyboard(int key, int scancode, int action, int mods)
 			// increase
 			case GLFW_KEY_9:
 			{
-				float increase = 0.5;
+				float increase = 0.2;
 				if (dist_factor_ < 20.0 - increase)
 				dist_factor_ += increase;
 				break;

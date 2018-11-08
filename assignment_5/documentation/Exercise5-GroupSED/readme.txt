@@ -4,7 +4,7 @@ How we solved the exercise:
 
  - First, we implemented the positioning of all planets (update_body_positions)
  - Then, we implemented the paint-method, which sets the camera to the
-   right position
+   right position, and also the missing keyboard functions.
  - After that, we implemented draw_scene for rendering of the planets
  - Finally, we fixed all bugs in the code and implemented
    the spaceship
