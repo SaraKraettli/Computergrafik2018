@@ -36,4 +36,17 @@ void main()
       Hint: Write the final vertex position to gl_Position
     */
 
+	// pass through texture coordinate
+    v2f_texcoord = v_texcoord;
+
+
+	v2f_light = vec3(light_position);
+
+	v2f_normal = normal_matrix*v_normal;
+	
+	
+	
+    // Compute vertices' normalized device coordinates
+    gl_Position = modelview_projection_matrix * v_position;
+	
 }

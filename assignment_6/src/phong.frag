@@ -35,7 +35,17 @@ void main()
      */
 
     vec3 color = vec3(0.0,0.0,0.0);
-
+	
+	vec3 m_ads = texture(tex, v2f_texcoord.st).rgb;
+	vec3 I_a = 0.2f * sunlight;
+	vec3 I_l = sunlight;
+	
+	color += (I_a*m_ads);
+	
+	if (dot(v2f_normal, v2f_light) > 0) {
+		color += I_l*m_ads*dot(v2f_normal, v2f_light);
+	}
+	
     // convert RGB color to YUV color and use only the luminance
     if (greyscale) color = vec3(0.299*color.r+0.587*color.g+0.114*color.b);
 

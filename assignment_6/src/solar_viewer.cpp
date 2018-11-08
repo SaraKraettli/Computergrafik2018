@@ -444,11 +444,6 @@ void Solar_viewer::draw_scene(mat4& _projection, mat4& _view)
 
     draw_planet(stars_);
 
-
-    draw_planet(mercury_);
-    draw_planet(venus_);
-    draw_planet(moon_);
-    draw_planet(mars_);
     draw_planet(earth_);
 
     // ship
@@ -472,6 +467,32 @@ void Solar_viewer::draw_scene(mat4& _projection, mat4& _view)
      *  Phong shading, you need to pass in the modelview matrix, the normal transformation
      *  matrix, and light position in addition to the color_shader_ parameters.
      */
+
+    auto draw_planet_phong = [&,this](Planet &planet)
+    {
+        mat4 m_matrix = mat4::translate(planet.pos_) *
+                        mat4::scale(planet.radius_) *
+                        mat4::rotate_y(planet.angle_self_);
+        mat4 mv_matrix  = _view * m_matrix;
+        mat4 mvp_matrix = _projection * mv_matrix;
+        phong_shader_.use();
+        phong_shader_.set_uniform("modelview_projection_matrix", mvp_matrix);
+        //phong_shader_.set_uniform("modelview_matrix", mv_matrix);
+        phong_shader_.set_uniform("normal_matrix", mat3(transpose(inverse(m_matrix))));
+        phong_shader_.set_uniform("light_position", mvp_matrix*sun_.pos_);
+        phong_shader_.set_uniform("modelview_projection_matrix", mvp_matrix);
+        phong_shader_.set_uniform("tex",0);
+        phong_shader_.set_uniform("greyscale", static_cast<int>(greyscale_));
+        planet.tex_.bind();
+        unit_sphere_.draw();
+    };
+
+    draw_planet_phong(mercury_);
+    draw_planet_phong(venus_);
+    draw_planet_phong(moon_);
+    draw_planet_phong(mars_);
+
+
 
     /** \todo Render the sun's halo here using the "color_shader_"
     *   - Construct a model matrix that scales the billboard to 3 times the
