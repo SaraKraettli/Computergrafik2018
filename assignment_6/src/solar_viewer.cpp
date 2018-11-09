@@ -444,8 +444,6 @@ void Solar_viewer::draw_scene(mat4& _projection, mat4& _view)
 
     draw_planet(stars_);
 
-    draw_planet(earth_);
-
     // ship
     m_matrix = mat4::translate(ship_.pos_)*mat4::rotate_y(ship_.angle_)*mat4::scale(ship_.radius_);
     mv_matrix = _view * m_matrix;
@@ -493,6 +491,25 @@ void Solar_viewer::draw_scene(mat4& _projection, mat4& _view)
     draw_planet_phong(venus_);
     draw_planet_phong(moon_);
     draw_planet_phong(mars_);
+
+
+    m_matrix = mat4::translate(earth_.pos_) *
+                    mat4::scale(earth_.radius_) *
+                    mat4::rotate_y(earth_.angle_self_);
+    mv_matrix  = _view * m_matrix;
+    mvp_matrix = _projection * mv_matrix;
+    earth_shader_.use();
+    earth_shader_.set_uniform("modelview_projection_matrix", mvp_matrix);
+    earth_shader_.set_uniform("modelview_matrix", mv_matrix);
+    earth_shader_.set_uniform("normal_matrix", mat3(transpose(inverse(mv_matrix))));
+    earth_shader_.set_uniform("light_position", light);
+    earth_shader_.set_uniform("day_texture", 0);
+    earth_shader_.set_uniform("night_texture", 1);
+    earth_shader_.set_uniform("cloud_texture", 2);
+    earth_shader_.set_uniform("gloss_texture", 3);
+    earth_shader_.set_uniform("greyscale", static_cast<int>(greyscale_));
+    earth_.tex_.bind();
+    unit_sphere_.draw();
 
 
 
