@@ -78,13 +78,13 @@ void main()
 
 
     // Add clouds to main color
-    day_color = (1-cloud_greyscale)*day_color + cloud_greyscale*cloud_color;
+    day_color = mix(day_color, cloud_color, cloud_greyscale);
 
 
     night_color = (1-cloud_greyscale)*texture(night_texture, v2f_texcoord.st).rgb;
 
 
-    vec3 color = n_dot_l*day_color + (1-n_dot_l)*night_color;
+    vec3 color = mix(night_color, day_color, n_dot_l);
 
     // convert RGB color to YUV color and use only the luminance
     if (greyscale) color = vec3(0.299*color.r+0.587*color.g+0.114*color.b);
