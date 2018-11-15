@@ -44,6 +44,13 @@ mat4 ShadowViewer::m_constructLightViewMatrix(size_t li, size_t cube_face) const
     * defined by scene_view_matrix.
     * Hint: use mat4::look_at
     **/
+
+    vec3 vecFaces[] = {vec3(1, 0, 0), vec3(-1, 0, 0),
+                       vec3(0, 1, 0), vec3(0, -1, 0),
+                       vec3(0, 0, 1), vec3(0, 0, -1)};
+
+
+    mat4 lightViewMatrix = mat4::look_at(this->m_light[li].position(), vec3(this->m_light[li].position())+vecFaces[cube_face], vec3(0,1,0));
     return mat4::identity() * scene_view_matrix;
 }
 
@@ -52,7 +59,11 @@ mat4 ShadowViewer::m_constructLightProjectionMatrix() const {
     * Construct the projection matrix for rendering the scene from the perspective
     * of the light to generate shadow maps.
     **/
-    return mat4::identity();
+    float fovy_ = 45;
+    float near_ = 0.1f;
+    float far_  = 6.0f;
+
+    return mat4::perspective(fovy_, (float)this->m_width/(float)this->m_height, near_, far_);
 }
 
 void ShadowViewer::m_render_shadow_cubemap(size_t li, const mat4 &plane_m_matrix, const mat4 &mesh_m_matrix) {
