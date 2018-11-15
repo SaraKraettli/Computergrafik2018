@@ -45,13 +45,19 @@ mat4 ShadowViewer::m_constructLightViewMatrix(size_t li, size_t cube_face) const
     * Hint: use mat4::look_at
     **/
 
-    vec3 vecFaces[] = {vec3(1, 0, 0), vec3(-1, 0, 0),
+    // Hardcoded Face-Directions (first face: +x, second face: -x, third face: +y, etc.)
+    vec3 vecFaceDirections[] = {vec3(1, 0, 0), vec3(-1, 0, 0),
                        vec3(0, 1, 0), vec3(0, -1, 0),
                        vec3(0, 0, 1), vec3(0, 0, -1)};
 
+    // Hardcoded up-vectors for each face-direction
+    vec3 vecUpVectors[] = {vec3(0, 1, 0), vec3(0, 1, 0),
+                       vec3(1, 0, 0), vec3(1, 0, 0),
+                       vec3(0, 1, 0), vec3(0, 1, 0)};
+
     vec3 lookFromPoint = scene_view_matrix * this->m_light[li].position();
-    vec3 lookAtPoint = lookFromPoint + vecFaces[cube_face];
-    vec3 up =  vec3(0, 1, 0);
+    vec3 lookAtPoint = lookFromPoint + vecFaceDirections[cube_face];
+    vec3 up =  vecUpVectors[cube_face];
 
     mat4 lightViewMatrix = mat4::look_at(lookFromPoint, lookAtPoint, up);
     return lightViewMatrix * scene_view_matrix;
