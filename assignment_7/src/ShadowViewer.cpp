@@ -49,9 +49,12 @@ mat4 ShadowViewer::m_constructLightViewMatrix(size_t li, size_t cube_face) const
                        vec3(0, 1, 0), vec3(0, -1, 0),
                        vec3(0, 0, 1), vec3(0, 0, -1)};
 
+    vec3 lookFromPoint = scene_view_matrix * this->m_light[li].position();
+    vec3 lookAtPoint = lookFromPoint + vecFaces[cube_face];
+    vec3 up =  vec3(0, 1, 0);
 
-    mat4 lightViewMatrix = mat4::look_at(this->m_light[li].position(), vec3(this->m_light[li].position())+vecFaces[cube_face], vec3(0,1,0));
-    return mat4::identity() * scene_view_matrix;
+    mat4 lightViewMatrix = mat4::look_at(lookFromPoint, lookAtPoint, up);
+    return lightViewMatrix * scene_view_matrix;
 }
 
 mat4 ShadowViewer::m_constructLightProjectionMatrix() const {
