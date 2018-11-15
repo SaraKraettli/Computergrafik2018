@@ -52,7 +52,7 @@ mat4 ShadowViewer::m_constructLightViewMatrix(size_t li, size_t cube_face) const
 
     // Hardcoded up-vectors for each face-direction
     vec3 vecUpVectors[] = {vec3(0, 1, 0), vec3(0, 1, 0),
-                       vec3(1, 0, 0), vec3(1, 0, 0),
+                       vec3(0, 0, -1), vec3(0, 0, 1),
                        vec3(0, 1, 0), vec3(0, 1, 0)};
 
     vec3 lookFromPoint = scene_view_matrix * this->m_light[li].position();
