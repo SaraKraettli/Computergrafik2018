@@ -59,11 +59,11 @@ mat4 ShadowViewer::m_constructLightProjectionMatrix() const {
     * Construct the projection matrix for rendering the scene from the perspective
     * of the light to generate shadow maps.
     **/
-    float fovy_ = 45;
+    float fovy_ = 90.0f;
     float near_ = 0.1f;
     float far_  = 6.0f;
 
-    return mat4::perspective(fovy_, (float)this->m_width/(float)this->m_height, near_, far_);
+    return mat4::perspective(fovy_, 1.0f, near_, far_);
 }
 
 void ShadowViewer::m_render_shadow_cubemap(size_t li, const mat4 &plane_m_matrix, const mat4 &mesh_m_matrix) {
