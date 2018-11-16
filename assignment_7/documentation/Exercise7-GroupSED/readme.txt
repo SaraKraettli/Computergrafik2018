@@ -7,8 +7,9 @@ How we solved the exercise:
    instead of a black-shadowmap
  - Then we tried to implement the BlendFunc with "glEnable(GL_BLEND);" and "glBlendFunc" but it didn't
    work or didn't change anything.
- - After that, we implemented the "phong_shadow.frag" (only diffuse for testing if it works)
+ - After that, we implemented the "phong_shadow.frag" (only diffuse, for testing if it works)
  - It didn't change anything and we noticed that we also have to change the method "ShadowViewer::draw".
+ - We fixed some bugs in "phong_shadow.frag" for diffuse-light-calculation.
 
 
 Problems we encountered:
