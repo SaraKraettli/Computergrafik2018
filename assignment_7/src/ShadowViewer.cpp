@@ -73,7 +73,7 @@ mat4 ShadowViewer::m_constructLightProjectionMatrix() const {
     float near_ = 0.1f;
     float far_  = 6.0f;
 
-    // Calculate perspective matrix such that the view always fits the screen
+    // Calculate perspective matrix so that the view always fits the screen
     return mat4::perspective(fovy_, 1.0f, near_, far_);
 }
 
