@@ -51,6 +51,7 @@ mat4 ShadowViewer::m_constructLightViewMatrix(size_t li, size_t cube_face) const
                        vec3(0, 0, 1), vec3(0, 0, -1)};
 
     // Hardcoded up-vectors for each face-direction
+    // With those up-vectors, you can always read "Face" mirrored from right to left in mode 2
     vec3 vecUpVectors[] = {vec3(0, 1, 0), vec3(0, 1, 0),
                        vec3(0, 0, -1), vec3(0, 0, 1),
                        vec3(0, 1, 0), vec3(0, 1, 0)};
@@ -68,10 +69,11 @@ mat4 ShadowViewer::m_constructLightProjectionMatrix() const {
     * Construct the projection matrix for rendering the scene from the perspective
     * of the light to generate shadow maps.
     **/
-    float fovy_ = 90.0f;
+    float fovy_ = 90.0f;  //90 degrees is the angle between light->upperline and light->lowerline
     float near_ = 0.1f;
     float far_  = 6.0f;
 
+    // Calculate perspective matrix such that the view always fits the screen
     return mat4::perspective(fovy_, 1.0f, near_, far_);
 }
 
