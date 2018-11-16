@@ -46,6 +46,22 @@ void main()
     ***/
     vec3 color = vec3(0.0f);
 
+    vec3 vecLightToVertex = v2f_ec_vertex - light_position;
+    vec3 vecVertexToLight = light_position - v2f_ec_vertex;
+
+    // Check if the point is in the shadow. If not, then add diffuse and specular light
+    if (length(vecLightToVertex) < 1.01 * texture(shadow_map, vecLightToVertex).r) {
+
+        // Add diffuse light
+        float n_dot_l = dot(N, normalize(vecVertexToLight));
+	    if (n_dot_l > 0) {
+		    color += light_color * diffuse_color * n_dot_l;
+	    }
+
+
+        // Add specular light
+    }
+
     // append the required alpha value
     f_light_contribution = vec4(color, 1.0);
 }
