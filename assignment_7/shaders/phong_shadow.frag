@@ -60,6 +60,12 @@ void main()
 
 
         // Add specular light
+        vec3 r = reflect(normalize(vecVertexToLight), N);
+        vec3 v2f_view = normalize((v2f_ec_vertex) - normalize(vecVertexToLight));
+        float r_dot_v = dot(r, v2f_view);
+        	if (n_dot_l > 0 && r_dot_v > 0) {
+            	color += light_color * specular_color * pow(r_dot_v, shininess);
+            }
     }
 
     // append the required alpha value
