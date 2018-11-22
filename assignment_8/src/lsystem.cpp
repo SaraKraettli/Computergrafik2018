@@ -9,8 +9,12 @@ std::string LindenmayerSystemDeterministic::expandSymbol(unsigned char const& sy
 		TODO 1.1
 		For a given symbol in the sequence, what should it be replaced with after expansion?
 	*/
+	if (sym == 'X')
+		return "F[+X]F[-X]+X";
+	else if (sym == 'F')
+		return "FF";
+	else return {char(sym)};
 
-	return {char(sym)}; // this constructs string from char
 	
 	//============================================================
 
@@ -27,8 +31,13 @@ std::string LindenmayerSystem::expandOnce(std::string const& symbol_sequence) {
 		Perform one iteration of grammar expansion on `symbol_sequence`.
 		Use the expandSymbol method
 	*/
-	
-	return "";
+	std::string tmpStr = symbol_sequence;
+	std::string result = "";
+	while (tmpStr.length() > 0) {
+		result += expandSymbol(tmpStr[0]);
+		tmpStr.erase(0, 1);
+	}
+	return result;
 
 	//============================================================
 }
@@ -38,8 +47,10 @@ std::string LindenmayerSystem::expand(std::string const& initial, uint32_t num_i
 		TODO 1.3
 		Perform `num_iters` iterations of grammar expansion (use expandOnce)
 	*/
-
-	return "";
+	std::string result = initial;
+	for (num_iters; num_iters > 0; num_iters--)
+		result += expandOnce(result);
+	return result;
 	
 	//============================================================
 }
