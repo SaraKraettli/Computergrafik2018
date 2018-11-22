@@ -49,7 +49,8 @@ std::string LindenmayerSystem::expand(std::string const& initial, uint32_t num_i
 	*/
 	std::string result = initial;
 	for (num_iters; num_iters > 0; num_iters--)
-		result += expandOnce(result);
+        result = expandOnce(result);
+	
 	return result;
 	
 	//============================================================
@@ -89,7 +90,7 @@ std::vector<Segment> LindenmayerSystem::draw(std::string const& symbols) {
 			direction = operator*(mat2(cos(winkel), -sin(winkel), sin(winkel), cos(winkel)), direction);
 		} else if (tmpStr[0] == '-') {
 			direction = operator*(mat2(cos(-winkel), -sin(-winkel), sin(-winkel), cos(-winkel)), direction);
-		} else if (tmpStr[0] == '[' && tmpStack.empty()) {
+		} else if (tmpStr[0] == '[') {
 			tmpStack.push({position, direction});
 		} else if (tmpStr[0] == ']' && !tmpStack.empty()) {
 			position = tmpStack.top().first;
