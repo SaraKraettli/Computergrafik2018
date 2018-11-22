@@ -77,7 +77,7 @@ std::vector<Segment> LindenmayerSystem::draw(std::string const& symbols) {
 	lines.push_back({ (x1, y1), (x2, y2) });
 	std::stack<double> tmpStack;
 	std::string tmpStr = symbols;
-	double alpha;
+	double alpha = 0;
 	while (tmpStr.length() > 0) {
 		x1 = x2;
 		y1 = y2;
@@ -120,8 +120,8 @@ std::string LindenmayerSystemStochastic::expandSymbol(unsigned char const& sym) 
 		Use dice.roll() to get a random number between 0 and 1
 	*/
 	if (sym == 'F') {
-		int random = dice.roll();
-		if (random == 0)
+		double random = dice.roll();
+		if (random > 0.5)
 			return "F-F";
 		else return "F+F";
 	}
