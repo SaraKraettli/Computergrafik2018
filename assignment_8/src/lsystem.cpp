@@ -73,6 +73,39 @@ std::vector<Segment> LindenmayerSystem::draw(std::string const& symbols) {
 		There also is a mat2 class in utils/vec.* you may find useful for
 		implementing rotations.
 	*/
+	double x1 = 0, y1 = 0, x2 = 0, y2 = 1;
+	lines.push_back({ (x1, y1), (x2, y2) });
+	std::stack<double> tmpStack;
+	std::string tmpStr = symbols;
+	double alpha;
+	while (tmpStr.length() > 0) {
+		x1 = x2;
+		y1 = y2;
+		if (tmpStr[0] == '+') {
+			alpha += rotation_angle_deg;
+		}
+		if (tmpStr[0] == '-') {
+			alpha -= rotation_angle_deg;
+		}
+		if (tmpStr[0] == '[' && tmpStack.empty) {
+			tmpStack.push(x1);
+			tmpStack.push(y1);
+			tmpStack.push(x2);
+			tmpStack.push(y2);
+		}
+		if (tmpStr[0] == ']' && !tmpStack.empty) {
+			x1 = tmpStack.pop;
+			x1 = tmpStack.pop;
+			x2 = tmpStack.pop;
+			y2 = tmpStack.pop;
+		}
+		else {
+			y2 += sin(alpha);
+			x2 += cos(alpha);
+			lines.push_back({ (x1, y1), (x2, y2) });
+		}
+		tmpStr.erase(0, 1);
+	}
 
 	return lines;
 	//============================================================
@@ -86,8 +119,13 @@ std::string LindenmayerSystemStochastic::expandSymbol(unsigned char const& sym) 
 
 		Use dice.roll() to get a random number between 0 and 1
 	*/
-	
-	return {char(sym)};
+	if (sym == 'F') {
+		int random = dice.roll();
+		if (random == 0)
+			return "F-F";
+		else return "F+F";
+	}
+	else return { char(sym) };
 
 	//============================================================
 }
