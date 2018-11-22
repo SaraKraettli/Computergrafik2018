@@ -73,37 +73,33 @@ std::vector<Segment> LindenmayerSystem::draw(std::string const& symbols) {
 		There also is a mat2 class in utils/vec.* you may find useful for
 		implementing rotations.
 	*/
-	double x1 = 0, y1 = 0, x2 = 0, y2 = 1;
-	lines.push_back({ (x1, y1), (x2, y2) });
-	std::stack<double> tmpStack;
+
+	// Create position and direction and push them on the stack
+	vec2 position = vec2(0, 0);
+	vec2 direction = vec2(0, 1);  // upwards
+
+	double winkel = rotation_angle_deg * 3.14159265 / 180;
+
+	std::stack<Segment> tmpStack;
 	std::string tmpStr = symbols;
-	double alpha = 0;
+
 	while (tmpStr.length() > 0) {
-		x1 = x2;
-		y1 = y2;
+
 		if (tmpStr[0] == '+') {
-			alpha += rotation_angle_deg;
+			direction = operator*(mat2(cos(winkel), -sin(winkel), sin(winkel), cos(winkel)), direction);
+		} else if (tmpStr[0] == '-') {
+			direction = operator*(mat2(cos(-winkel), -sin(-winkel), sin(-winkel), cos(-winkel)), direction);
+		} else if (tmpStr[0] == '[' && tmpStack.empty()) {
+			tmpStack.push({position, direction});
+		} else if (tmpStr[0] == ']' && !tmpStack.empty()) {
+			position = tmpStack.top().first;
+			direction = tmpStack.top().second;
+			tmpStack.pop();
+		} else {
+			lines.push_back({position, position+direction});
+			position += direction;
 		}
-		if (tmpStr[0] == '-') {
-			alpha -= rotation_angle_deg;
-		}
-		if (tmpStr[0] == '[' && tmpStack.empty) {
-			tmpStack.push(x1);
-			tmpStack.push(y1);
-			tmpStack.push(x2);
-			tmpStack.push(y2);
-		}
-		if (tmpStr[0] == ']' && !tmpStack.empty) {
-			x1 = tmpStack.pop;
-			x1 = tmpStack.pop;
-			x2 = tmpStack.pop;
-			y2 = tmpStack.pop;
-		}
-		else {
-			y2 += sin(alpha);
-			x2 += cos(alpha);
-			lines.push_back({ (x1, y1), (x2, y2) });
-		}
+
 		tmpStr.erase(0, 1);
 	}
 
