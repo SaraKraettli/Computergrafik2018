@@ -9,13 +9,25 @@ std::string LindenmayerSystemDeterministic::expandSymbol(unsigned char const& sy
 		TODO 1.1
 		For a given symbol in the sequence, what should it be replaced with after expansion?
 	*/
+	for (auto it = this->rules.begin(); it != this->rules.end(); it++) {
+        if (sym == it->first) {
+            return it->second;
+        }
+	}
+
+	return {char(sym)};
+
+
+	// Old approach
+	/*
 	if (sym == 'X')
 		return "F[+X]F[-X]+X";
 	else if (sym == 'F')
 		return "FF";
 	else return {char(sym)};
+	 */
 
-	
+
 	//============================================================
 
 	/*
@@ -116,13 +128,27 @@ std::string LindenmayerSystemStochastic::expandSymbol(unsigned char const& sym) 
 
 		Use dice.roll() to get a random number between 0 and 1
 	*/
-	if (sym == 'F') {
+
+    for (auto it = this->rules.begin(); it != this->rules.end(); it++) {
+        if (sym == it->first) {
+            for (auto it2 = it->second.begin(); it2 != it->second.end(); it2++) {
+                double random = dice.roll();
+                if (random <= it2->probability) {
+                    return it2->expansion;
+                }
+            }
+        }
+    }
+    return {char(sym)};
+
+	// Old approach
+	/*if (sym == 'F') {
 		double random = dice.roll();
 		if (random > 0.5)
 			return "F-F";
 		else return "F+F";
 	}
-	else return { char(sym) };
+	else return { char(sym) };*/
 
 	//============================================================
 }
